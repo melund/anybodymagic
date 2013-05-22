@@ -157,6 +157,7 @@ class AnyBodyMagics(Magics):
             self.job_manager.new(self._run_script, p, macrofile, daemon=True)
             if args.proc:
                 self.shell.user_ns[args.proc] = p
+            return
  
         try:
             #p.stdin.write(cell)
