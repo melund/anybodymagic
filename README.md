@@ -3,6 +3,9 @@ anybodymagic
 
 Extension for IPython to run AnyBody macros
 
+### Requirements
+The [AnyBody Modeling System](www.anybodytech.com) 
+
 ### Install
 `%install_ext https://raw.github.com/melund/anybodymagic/master/anybodymagic.py`
 
