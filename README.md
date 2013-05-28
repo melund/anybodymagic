@@ -1,7 +1,8 @@
 anybodymagic
 ============
 
-Extension for IPython to run AnyBody macros
+Extension for IPython to run AnyBody macros. For more details see this [demo of anybodymagic](http://nbviewer.ipython.org/urls/raw.github.com/melund/anybodymagic/master/demo_anybodymagic.ipynb)
+
 
 ### Requirements
 The [AnyBody Modeling System](www.anybodytech.com) 
@@ -22,6 +23,3 @@ classoperation Main.MyStudy.Output "Save data" --type="Deep" --file="output.anyd
 exit
 ```
 
-###Demo:
-
-For more details see this [demo of anybodymagic](http://nbviewer.ipython.org/urls/raw.github.com/melund/anybodymagic/master/demo_anybodymagic.ipynb)
