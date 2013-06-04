@@ -39,6 +39,11 @@ def script_args(f):
             """
         ),
         magic_arguments.argument(
+            '--anybodycon', type=str,
+            help="""The the path to to the anybodycon.
+            """
+        ),
+        magic_arguments.argument(
             '--bg', action="store_true",
             help="""Whether to run the script in the background.
             If given, the only way to see the output of the command is
@@ -96,6 +101,7 @@ class AnyBodyMagics(Magics):
         --out <output var>        
         --bg <>
         --proc <baground process variable >
+        --anybodycon <path to anybodycon>
         
         Examples
         --------
@@ -108,16 +114,22 @@ class AnyBodyMagics(Magics):
         argv = arg_split(line, posix = not sys.platform.startswith('win'))
         args, dummy = self.run_cell.parser.parse_known_args(argv)
         
-        
-        if sys.platform != 'win32':
-            raise Exception('Only works on windows')
-        import _winreg
-        try:        
-            abpath = _winreg.QueryValue(_winreg.HKEY_CLASSES_ROOT,
-                        'AnyBody.AnyScript\shell\open\command').rsplit(' ',1)[0]
-            abcpath  = os.path.join(os.path.dirname(abpath),'AnyBodyCon.exe')
-        except:
-            raise Exception('Could not find AnyBody Modeling System installed')
+        if args.anybodycon:
+            abcpath = args.anybodycon
+        elif sys.platform == 'win32':
+            import _winreg
+            try:        
+                abpath = _winreg.QueryValue(_winreg.HKEY_CLASSES_ROOT,
+                            'AnyBody.AnyScript\shell\open\command').rsplit(' ',1)[0]
+                abcpath  = os.path.join(os.path.dirname(abpath),'AnyBodyCon.exe')
+            except:
+                raise Exception('Could not find AnyBody Modeling System in windows registry')
+        else: 
+            raise Exception('Cannot find the specified anybodycon')
+        if not os.path.exists(abcpath):
+            raise Exception('Cannot find the specified anybodycon')
+
+
 
         if args.dir and os.path.isdir(args.dir):
             folder = args.dir
