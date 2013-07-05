@@ -115,7 +115,10 @@ class AnyBodyMagics(Magics):
         args, dummy = self.run_cell.parser.parse_known_args(argv)
         
         if args.anybodycon:
-            abcpath = args.anybodycon
+            if os.path.exists(args.anybodycon):
+                abcpath = args.anybodycon
+            elif self.shell.user_ns.has_key(args.anybodycon):
+                abcpath = self.shell.user_ns[args.anybodycon]
         elif sys.platform == 'win32':
             import _winreg
             try:        
@@ -127,12 +130,14 @@ class AnyBodyMagics(Magics):
         else: 
             raise Exception('Cannot find the specified anybodycon')
         if not os.path.exists(abcpath):
-            raise Exception('Cannot find the specified anybodycon')
+            raise Exception('Cannot find the specified anybodycon: %s'%abcpath)
 
 
-
+    
         if args.dir and os.path.isdir(args.dir):
             folder = args.dir
+        elif self.shell.user_ns.has_key(args.dir):
+            folder = self.shell.user_ns[args.dir]
         else:
             folder = os.getcwd()
               
