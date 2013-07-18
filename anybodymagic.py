@@ -273,12 +273,23 @@ class AnyBodyMagics(Magics):
 def _parse_anybodycon_output(strvar):
     out = {};
     dump_path = None
+    previous_line = ""
     for line in strvar.splitlines():
-        if line.count('#### Macro command') and line.count('"Dump"'):
+        if previous_line.count('#### Macro command') and previous_line.count('"Dump"'):
             me = re.search('Main[^ \"]*', line)
             if me is not None :
                 dump_path = me.group(0)
-        if line.endswith(';'):
+                
+        if line.endswith('='):
+            if line.startswith('Main'):
+                var_name = line.split('=')[0].strip()
+            elif len(var_name):
+                var_name.append(line.split('=')[0].strip() )
+        
+        if line.endswith('};') and line.find('=') == '-1':
+            var_name.pop()
+                            
+        if line.endswith(';') and line.count('=') == 1:
             (first, last) = line.split('=')
             first = first.strip()
             last = last.strip(' ;').replace('{','[').replace('}',']')
@@ -291,6 +302,7 @@ def _parse_anybodycon_output(strvar):
                 continue # hack to avoid detecting #path error this error which is always present
             if not out.has_key('ERROR'): out['ERROR'] = []
             out['ERROR'].append(line)
+        previous_line = line
     return out
 
 
