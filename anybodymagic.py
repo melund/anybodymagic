@@ -123,7 +123,8 @@ class AnyBodyMagics(Magics):
             import _winreg
             try:        
                 abpath = _winreg.QueryValue(_winreg.HKEY_CLASSES_ROOT,
-                            'AnyBody.AnyScript\shell\open\command').rsplit(' ',1)[0]
+                                'AnyBody.AnyScript\shell\open\command')
+                abpath = abpath.rsplit(' ',1)[0].strip('"')
                 abcpath  = os.path.join(os.path.dirname(abpath),'AnyBodyCon.exe')
             except:
                 raise Exception('Could not find AnyBody Modeling System in windows registry')
