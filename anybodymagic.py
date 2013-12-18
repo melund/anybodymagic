@@ -11,10 +11,12 @@ import atexit
 from tempfile import NamedTemporaryFile
 import numpy as np
 import re
+from IPython.display import clear_output, HTML, display
 
 
 # Our own packages
 from IPython.core import magic_arguments
+from IPython.core.page import page
 from IPython.core.magic import  (
     Magics, magics_class, line_magic, cell_magic
 )
@@ -60,6 +62,11 @@ def script_args(f):
             '--dump', action="store_true",
             help="""This will move all 'dump'ed varialbes to the ipython name
             space.
+            """
+        ),
+        magic_arguments.argument(
+            '--pager', action="store_true",
+            help="""This will open AnyBody console output in the pager instead of the cell
             """
         ),
     ]
@@ -159,7 +166,7 @@ class AnyBodyMagics(Magics):
         cmd = [abcpath ,'/d',folder, '--macro=', macrofile.name, '/ni', "1>&2"]        
         
         try:
-            p = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE,shell= True)
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE, shell= True)
         except OSError as e:
             if e.errno == errno.ENOENT:
                 print "Couldn't find program: %r" % cmd[0]
@@ -176,15 +183,24 @@ class AnyBodyMagics(Magics):
             if args.proc:
                 self.shell.user_ns[args.proc] = p
             return
- 
+        
+        def htmlbox(text):
+            raw_html = """<div id="anyscriptbox" style="height: 120px ; width : auto; border:1px dotted black;padding:0.5em;overflow:auto;background-color:#E0E0E0 ; font:3px Geogia"><font size="2px" face="courier"> {0} </font></div>' <script> var myDiv = document.getElementById("anyscriptbox");
+            myDiv.scrollTop = myDiv.scrollHeight;</script> """.format(str(text) )
+            return HTML(raw_html)
+        
         try:
-            #p.stdin.write(cell)
             raw_out = []
-            for line in iter(p.stderr.readline, b''):
-                #publish_display_data('test',{'text/plain':line.rstrip()})
-                line = py3compat.bytes_to_str(line)
-                print(line.rstrip())
+            for line in iter(p.stderr.readline,b''):
+                line = py3compat.bytes_to_str( line )
                 raw_out.append(line)
+                if not args.pager:
+                    clear_output()
+                    display(  htmlbox("<br/>".join( raw_out ) ) )
+                #sys.stdout.flush()
+                
+            if args.pager:
+                page("".join(raw_out))
             p.communicate();
                 
         except KeyboardInterrupt:
@@ -207,12 +223,12 @@ class AnyBodyMagics(Magics):
                 print "Error while terminating subprocess (pid=%i): %s" \
                     % (p.pid, e)
             return
-        raw_out = "\n".join(raw_out)
+
         if args.out:
-            self.shell.user_ns[args.out] = raw_out
+            self.shell.user_ns[args.out] = "\n".join(raw_out)
         
         if args.dump:
-            output =  _parse_anybodycon_output(raw_out)
+            output =  _parse_anybodycon_output( "\n".join(raw_out) )
             if len(output.keys()):
                 print '\n\n***** Dumped variables: ******'
                 print '*'*30
@@ -228,7 +244,7 @@ class AnyBodyMagics(Magics):
     
     def _run_script(self, p, macrofile):
         """callback for running the script in the background"""
-        p.wait()
+        p.communicate();
         try:
             macrofile.close()            
             os.remove(macrofile.name) 
@@ -301,8 +317,8 @@ def _parse_anybodycon_output(strvar):
         if line.startswith('ERROR') or line.startswith('Error'): 
             if line.endswith('Path does not exist.'):
                 continue # hack to avoid detecting #path error this error which is always present
-            if not out.has_key('ERROR'): out['ERROR'] = []
-            out['ERROR'].append(line)
+            if not out.has_key('error_log'): out['error_log'] = []
+            out['error_log'].append(line)
         previous_line = line
     return out
 
