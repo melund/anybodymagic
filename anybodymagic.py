@@ -230,12 +230,11 @@ class AnyBodyMagics(Magics):
         if args.dump:
             output =  _parse_anybodycon_output( "\n".join(raw_out) )
             if len(output.keys()):
-                print '\n\n***** Dumped variables: ******'
-                print '*'*30
+                print 'Dumped variables:'
             for k,v in output.iteritems():
                 varname = k.replace('.','_')
                 self.shell.user_ns[varname] = v
-                print varname
+                print '- ' + varname
         try:
             macrofile.close()            
             os.remove(macrofile.name) 
