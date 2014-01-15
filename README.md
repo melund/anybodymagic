@@ -23,3 +23,6 @@ classoperation Main.MyStudy.Output "Save data" --type="Deep" --file="output.anyd
 exit
 ```
 
+More detailed examples are given in this [ipython notebook]( http://nbviewer.ipython.org/github/melund/anybodymagic/blob/master/demo_anybodymagic.ipynb?create=1).
+
+
