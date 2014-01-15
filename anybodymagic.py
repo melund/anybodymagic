@@ -12,7 +12,8 @@ from tempfile import NamedTemporaryFile
 import numpy as np
 import re
 from IPython.display import clear_output, HTML, display
-
+import random
+import string
 
 # Our own packages
 from IPython.core import magic_arguments
@@ -184,9 +185,10 @@ class AnyBodyMagics(Magics):
                 self.shell.user_ns[args.proc] = p
             return
         
+        random_tag = ''.join( random.sample(string.ascii_uppercase,6) )
         def htmlbox(text):
-            raw_html = """<div id="anyscriptbox" style="height: 120px ; width : auto; border:1px dotted black;padding:0.5em;overflow:auto;background-color:#E0E0E0 ; font:3px Geogia"><font size="2px" face="courier"> {0} </font></div>' <script> var myDiv = document.getElementById("anyscriptbox");
-            myDiv.scrollTop = myDiv.scrollHeight;</script> """.format(str(text) )
+            raw_html = """<div id="anyscriptbox_{0}" style="height: 120px ; width : auto; border:1px dotted black;padding:0.5em;overflow:auto;background-color:#E0E0E0 ; font:3px Geogia"><font size="2px" face="courier"> {1} </font></div> <script> var myDiv = document.getElementById("anyscriptbox_{0}");
+            myDiv.scrollTop = myDiv.scrollHeight;</script> """.format(random_tag, text )
             return HTML(raw_html)
         
         try:
